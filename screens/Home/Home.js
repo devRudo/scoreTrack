@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,22 +8,78 @@ import {
 } from "react-native";
 import { AverageScoreCard } from "../../components/AverageScoreCard";
 import CommonPicker from "../../components/CommonPicker/CommonPicker";
-import { ActivityIndicator, Card } from "react-native-paper";
+import { ActivityIndicator, Button, Card } from "react-native-paper";
 import { CircularProgress } from "../../components/CircularProgress";
 import { router } from "expo-router";
 import { studentsData } from "../../data";
+import { CardBase } from "../../components/CardBase";
 
 const Home = () => {
   const [sortBy, setSortBy] = useState("name");
   const [fetchingStudentsList, setFetchingStudentsList] = useState(false);
   const [salutation, setSalutation] = useState("");
+  const flatlistRef = useRef(null);
+  const [showMoveToTop, setShowMoveToTop] = useState(false);
 
   const [students, setStudents] = useState([]);
+
+  const handleScroll = (e) => {
+    console.log(e.nativeEvent.contentOffset.y);
+    if (e?.nativeEvent?.contentOffset?.y > 500) {
+      setShowMoveToTop(true);
+    } else {
+      setShowMoveToTop(false);
+    }
+  };
+
+  useEffect(() => {
+    setStudents(
+      studentsData?.data?.sort((a, b) => {
+        let valueA;
+        let valueB;
+        if (sortBy === "name") {
+          valueA = a.firstName.toUpperCase();
+          valueB = b.firstName.toUpperCase();
+        } else if (sortBy === "ascPercentage") {
+          valueA = a.scoreInPercentage;
+          valueB = b.scoreInPercentage;
+        }
+        if (valueA < valueB) {
+          return -1;
+        }
+        if (valueA > valueB) {
+          return 1;
+        } else if (sortBy === "dscPercentage") {
+          valueA = a.scoreInPercentage;
+          valueB = b.scoreInPercentage;
+        }
+        if (valueA > valueB) {
+          return -1;
+        }
+        if (valueA < valueB) {
+          return 1;
+        }
+        return 0;
+      }) || []
+    );
+  }, [sortBy]);
 
   useEffect(() => {
     setFetchingStudentsList(true);
     setTimeout(() => {
-      setStudents(studentsData?.data || []);
+      setStudents(
+        studentsData?.data?.sort((a, b) => {
+          const nameA = a.firstName.toUpperCase();
+          const nameB = b.firstName.toUpperCase();
+          if (nameA < nameB) {
+            return -1;
+          }
+          if (nameA > nameB) {
+            return 1;
+          }
+          return 0;
+        }) || []
+      );
       setFetchingStudentsList(false);
     }, 2000);
   }, []);
@@ -42,9 +98,9 @@ const Home = () => {
   return (
     <View
       style={{
-        padding: 15,
-        paddingHorizontal: 20,
+        flex: 1,
         gap: 10,
+        position: "relative",
       }}
     >
       {fetchingStudentsList ? (
@@ -61,58 +117,65 @@ const Home = () => {
         </View>
       ) : (
         <>
-          <Text
-            style={{
-              fontWeight: "bold",
-              fontSize: 22,
-              letterSpacing: 1,
-            }}
-          >
-            {salutation}!
-          </Text>
-          <AverageScoreCard students={students}></AverageScoreCard>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Text>Sort by: </Text>
-            <View
+          <View style={{ gap: 15, padding: 15, paddingHorizontal: 20 }}>
+            <Text
               style={{
-                borderColor: "#d3d3d3",
-                borderWidth: 1,
-                borderStyle: "solid",
-                borderRadius: 5,
+                fontWeight: "bold",
+                fontSize: 22,
+                letterSpacing: 1,
               }}
             >
-              <CommonPicker
-                items={[
-                  { label: "Name", value: "name" },
-                  {
-                    label: "Percentage (low to high)",
-                    value: "ascPercentage",
-                  },
-                  {
-                    label: "Percentage (hight to low)",
-                    value: "dscPercentage",
-                  },
-                ]}
-                value={sortBy}
-                handleChange={(itemValue) => {
-                  console.log(itemValue);
-                  // console.log(sortBy);
-                  setSortBy(itemValue);
+              {salutation}!
+            </Text>
+            <AverageScoreCard students={students}></AverageScoreCard>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Text>Sort by: </Text>
+              <View
+                style={{
+                  borderColor: "#d3d3d3",
+                  borderWidth: 1,
+                  borderStyle: "solid",
+                  borderRadius: 5,
                 }}
-              />
+              >
+                <CommonPicker
+                  items={[
+                    { label: "Name", value: "name" },
+                    {
+                      label: "Percentage (low to high)",
+                      value: "ascPercentage",
+                    },
+                    {
+                      label: "Percentage (hight to low)",
+                      value: "dscPercentage",
+                    },
+                  ]}
+                  value={sortBy}
+                  handleChange={(itemValue) => {
+                    console.log(itemValue);
+                    // console.log(sortBy);
+                    setSortBy(itemValue);
+                  }}
+                />
+              </View>
             </View>
           </View>
           <FlatList
             contentContainerStyle={{
               gap: 20,
+              padding: 5,
+              paddingHorizontal: 15,
+              paddingBottom: 350,
             }}
+            ref={flatlistRef}
             // refreshing={fetchingStudentsList}
+            onScroll={(e) => handleScroll(e)}
             data={students}
             renderItem={({ item }) => (
               <TouchableOpacity
@@ -123,8 +186,8 @@ const Home = () => {
                   })
                 }
               >
-                <Card
-                  contentStyle={{
+                <CardBase
+                  style={{
                     padding: 20,
                     display: "flex",
                     flexDirection: "row",
@@ -137,6 +200,7 @@ const Home = () => {
                       flexDirection: "row",
                       alignItems: "center",
                       gap: 10,
+                      flex: 1,
                     }}
                   >
                     <View
@@ -159,12 +223,14 @@ const Home = () => {
                     <View
                       style={{
                         gap: 5,
+                        flex: 1,
                       }}
                     >
                       <Text
                         style={{
                           fontWeight: 600,
                           fontSize: 16,
+                          flexWrap: "wrap",
                         }}
                       >
                         {`${item?.firstName} ${item?.lastName}`}
@@ -191,13 +257,41 @@ const Home = () => {
                     width={8}
                     showWithPercentSign={false}
                   />
-                </Card>
+                </CardBase>
               </TouchableOpacity>
             )}
             keyExtractor={(item) => item.id}
           />
         </>
       )}
+      {showMoveToTop ? (
+        <View
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1111111,
+            width: "100%",
+          }}
+        >
+          <Button
+            mode="contained"
+            icon={"arrow-up"}
+            onPress={() => {
+              flatlistRef.current.scrollToOffset({
+                animated: true,
+                offset: 0,
+              });
+            }}
+            buttonColor="#d3d3d3"
+            textColor="#343a40"
+          >
+            <Text>Move To Top</Text>
+          </Button>
+        </View>
+      ) : null}
     </View>
   );
 };
