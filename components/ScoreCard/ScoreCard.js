@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 // import { Text, View } from "react-native";
 import PropTypes from "prop-types";
 import { CardBase } from "../CardBase";
@@ -9,6 +9,10 @@ import { studentsData } from "../../data";
 import Slider from "@react-native-community/slider";
 
 const ScoreCard = ({ studentId }) => {
+  const [score, setScore] = useState(
+    studentsData?.data?.find((std) => std?.id === studentId)?.scoreInPercentage
+  );
+
   return (
     <CardBase>
       <View
@@ -90,24 +94,18 @@ const ScoreCard = ({ studentId }) => {
             fontSize: 16,
           }}
         >
-          Score:{" "}
-          {
-            studentsData?.data?.find((std) => std?.id === studentId)
-              ?.scoreInPercentage
-          }{" "}
-          %
+          Score: {score}%
         </Text>
         <Slider
           style={{ width: "100%" }}
-          value={
-            studentsData?.data?.find((std) => std?.id === studentId)
-              ?.scoreInPercentage
-          }
+          value={score}
           minimumValue={0}
           maximumValue={100}
           tapToSeek
           minimumTrackTintColor="#009dff"
           thumbTintColor="#009dff"
+          onValueChange={(value) => setScore(value)}
+          step={1}
         />
         <View
           style={{
@@ -130,10 +128,7 @@ const ScoreCard = ({ studentId }) => {
               fontSize: 16,
             }}
           >
-            {studentsData?.data?.find((std) => std?.id === studentId)
-              ?.scoreInPercentage >= 40
-              ? "Pass"
-              : "Fail"}
+            {score >= 40 ? "Pass" : "Fail"}
           </Text>
         </View>
       </View>

@@ -9,13 +9,11 @@ import {
   useColorScheme,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-// import { Colors } from "react-native/Libraries/NewAppScreen";
 
 const CommonPicker = ({ items, value, handleChange }) => {
   const isDarkMode = useColorScheme() === "dark";
 
   const backgroundStyle = {
-    // backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
     color: isDarkMode ? "#fff" : "#000",
   };
 
@@ -36,15 +34,9 @@ const CommonPicker = ({ items, value, handleChange }) => {
         } else {
           ActionSheetIOS.showShareActionSheetWithOptions;
         }
-        // console.log(
-        //   items?.find((item, itemIndex) => itemIndex === selectedValueIndex)
-        //     ?.value,
-        // );
       }
     );
   };
-
-  // console.log(Platform);
 
   if (Platform.OS === "ios") {
     return (
@@ -76,15 +68,11 @@ const CommonPicker = ({ items, value, handleChange }) => {
   } else {
     return (
       <Picker
-        // mode="dropdown"
-        style={{ color: "#f3f3f3" }}
-        dropdownIconColor={"#d3d3d3"}
+        mode="dropdown"
+        style={{ color: "#000", minWidth: 150 }}
+        dropdownIconColor={"#000"}
         itemStyle={{
-          color: "#d3d3d3",
-          borderColor: "#d3d3d3",
-          borderWidth: 1,
-          borderStyle: "solid",
-          // backgroundColor: "#343a40",
+          color: "#000",
         }}
         selectedValue={value}
         onValueChange={(newValue) => handleChange(newValue)}

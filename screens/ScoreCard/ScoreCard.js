@@ -6,7 +6,6 @@ import { useLocalSearchParams } from "expo-router";
 const ScoreCard = () => {
   const params = useLocalSearchParams();
   const { id } = params;
-  console.log(id);
 
   return (
     <>

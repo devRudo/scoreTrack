@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -14,6 +14,88 @@ import { router } from "expo-router";
 import { studentsData } from "../../data";
 import { CardBase } from "../../components/CardBase";
 
+const StudentCard = memo(function StudentCard({ item }) {
+  return (
+    <TouchableOpacity
+      onPress={() =>
+        router.push({
+          pathname: "/scorecard",
+          params: { id: item.id },
+        })
+      }
+    >
+      <CardBase
+        style={{
+          padding: 20,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 10,
+            flex: 1,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor:
+                item.section === "science" ? "#fa661b" : "#fbb03b",
+              borderRadius: 50,
+              width: 70,
+              height: 70,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ fontSize: 30, color: "#fff", fontWeight: 400 }}>
+              {item.firstName.split("")[0]}
+            </Text>
+          </View>
+          <View
+            style={{
+              gap: 5,
+              flex: 1,
+            }}
+          >
+            <Text
+              style={{
+                fontWeight: 600,
+                fontSize: 16,
+                flexWrap: "wrap",
+              }}
+            >
+              {`${item?.firstName} ${item?.lastName}`}
+            </Text>
+            <Text
+              style={{
+                fontWeight: 600,
+                fontSize: 16,
+                color: "#999",
+              }}
+            >
+              {`${item?.section?.split("")?.[0].toUpperCase()}${item?.section
+                ?.split("")
+                ?.slice(1)
+                ?.join("")}`}
+            </Text>
+          </View>
+        </View>
+        <CircularProgress
+          value={item?.scoreInPercentage}
+          size={60}
+          width={8}
+          showWithPercentSign={false}
+        />
+      </CardBase>
+    </TouchableOpacity>
+  );
+});
+
 const Home = () => {
   const [sortBy, setSortBy] = useState("name");
   const [fetchingStudentsList, setFetchingStudentsList] = useState(false);
@@ -24,12 +106,11 @@ const Home = () => {
   const [students, setStudents] = useState([]);
 
   const handleScroll = (e) => {
-    console.log(e.nativeEvent.contentOffset.y);
-    if (e?.nativeEvent?.contentOffset?.y > 500) {
-      setShowMoveToTop(true);
-    } else {
-      setShowMoveToTop(false);
-    }
+    // if (e?.nativeEvent?.contentOffset?.y > 500) {
+    //   setShowMoveToTop(true);
+    // } else {
+    //   setShowMoveToTop(false);
+    // }
   };
 
   useEffect(() => {
@@ -85,7 +166,6 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    console.log(new Date().getHours());
     if (new Date().getHours() >= 0 && new Date().getHours() < 12) {
       setSalutation("Good Morning");
     } else if (new Date().getHours() >= 12 && new Date().getHours() < 17) {
@@ -158,8 +238,6 @@ const Home = () => {
                   ]}
                   value={sortBy}
                   handleChange={(itemValue) => {
-                    console.log(itemValue);
-                    // console.log(sortBy);
                     setSortBy(itemValue);
                   }}
                 />
@@ -171,95 +249,12 @@ const Home = () => {
               gap: 20,
               padding: 5,
               paddingHorizontal: 15,
-              paddingBottom: 350,
+              // paddingBottom: 350,
             }}
             ref={flatlistRef}
-            // refreshing={fetchingStudentsList}
             onScroll={(e) => handleScroll(e)}
             data={students}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() =>
-                  router.push({
-                    pathname: "/scorecard",
-                    params: { id: item.id },
-                  })
-                }
-              >
-                <CardBase
-                  style={{
-                    padding: 20,
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 10,
-                      flex: 1,
-                    }}
-                  >
-                    <View
-                      style={{
-                        backgroundColor:
-                          item.section === "science" ? "#fa661b" : "#fbb03b",
-                        borderRadius: 50,
-                        width: 70,
-                        height: 70,
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text
-                        style={{ fontSize: 30, color: "#fff", fontWeight: 400 }}
-                      >
-                        {item.firstName.split("")[0]}
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        gap: 5,
-                        flex: 1,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontWeight: 600,
-                          fontSize: 16,
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        {`${item?.firstName} ${item?.lastName}`}
-                      </Text>
-                      <Text
-                        style={{
-                          fontWeight: 600,
-                          fontSize: 16,
-                          color: "#999",
-                        }}
-                      >
-                        {`${item?.section
-                          ?.split("")?.[0]
-                          .toUpperCase()}${item?.section
-                          ?.split("")
-                          ?.slice(1)
-                          ?.join("")}`}
-                      </Text>
-                    </View>
-                  </View>
-                  <CircularProgress
-                    value={item?.scoreInPercentage}
-                    size={60}
-                    width={8}
-                    showWithPercentSign={false}
-                  />
-                </CardBase>
-              </TouchableOpacity>
-            )}
+            renderItem={({ item }) => <StudentCard item={item} />}
             keyExtractor={(item) => item.id}
           />
         </>
