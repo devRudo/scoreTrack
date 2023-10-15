@@ -16,6 +16,7 @@ import { studentsData } from "../../data";
 const Home = () => {
   const [sortBy, setSortBy] = useState("name");
   const [fetchingStudentsList, setFetchingStudentsList] = useState(false);
+  const [salutation, setSalutation] = useState("");
 
   const [students, setStudents] = useState([]);
 
@@ -26,6 +27,17 @@ const Home = () => {
       setFetchingStudentsList(false);
     }, 2000);
   }, []);
+
+  useEffect(() => {
+    console.log(new Date().getHours());
+    if (new Date().getHours() >= 0 && new Date().getHours() < 12) {
+      setSalutation("Good Morning");
+    } else if (new Date().getHours() >= 12 && new Date().getHours() < 17) {
+      setSalutation("Good Afternoon");
+    } else if (new Date().getHours() >= 17 && new Date().getHours() < 24) {
+      setSalutation("Good Evening");
+    }
+  }, [new Date().getHours()]);
 
   return (
     <View
@@ -56,7 +68,7 @@ const Home = () => {
               letterSpacing: 1,
             }}
           >
-            Good Morning!
+            {salutation}!
           </Text>
           <AverageScoreCard students={students}></AverageScoreCard>
           <View
