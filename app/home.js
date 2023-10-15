@@ -3,6 +3,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { Home as HomeView } from "../screens";
+import { StatusBar } from "expo-status-bar";
 
 // prevent autmatically hide of splash screen : to be hidden after custom font loded
 SplashScreen.preventAutoHideAsync();
@@ -25,7 +26,12 @@ const Home = () => {
 
   return (
     <SafeAreaProvider onLayout={onLayoutRootView}>
-      <SafeAreaView>
+      <SafeAreaView
+        style={{
+          flex: 1,
+        }}
+      >
+        <StatusBar style="dark" />
         <HomeView />
       </SafeAreaView>
     </SafeAreaProvider>
