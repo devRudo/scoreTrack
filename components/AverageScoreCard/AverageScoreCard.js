@@ -1,11 +1,11 @@
 import React from "react";
 // import { Text, View } from "react-native";
-// import PropTypes from "prop-types";
+import PropTypes from "prop-types";
 import { CardBase } from "../CardBase";
 import { CircularProgress } from "../CircularProgress";
 import { Text, View } from "react-native";
 
-const AversageScoreCard = () => {
+const AversageScoreCard = ({ students }) => {
   return (
     <CardBase>
       <View
@@ -16,7 +16,11 @@ const AversageScoreCard = () => {
         }}
       >
         <CircularProgress
-          value={30}
+          value={Math.round(
+            (students?.filter((std) => std.scoreInPercentage >= 40)?.length /
+              students.length) *
+              100
+          )}
           size={100}
           width={10}
           showWithPercentSign={true}
@@ -45,7 +49,27 @@ const AversageScoreCard = () => {
                 fontWeight: 700,
               }}
             >
-              Poor! / Good! / Excellent!
+              {Math.round(
+                (students?.filter((std) => std.scoreInPercentage >= 40)
+                  ?.length /
+                  students.length) *
+                  100
+              ) < 40
+                ? "Poor!"
+                : Math.round(
+                    (students?.filter((std) => std.scoreInPercentage >= 40)
+                      ?.length /
+                      students.length) *
+                      100
+                  ) >= 40 &&
+                  Math.round(
+                    (students?.filter((std) => std.scoreInPercentage >= 40)
+                      ?.length /
+                      students.length) *
+                      100
+                  ) <= 80
+                ? "Good!"
+                : "Excellent!"}
             </Text>
           </View>
           <Text
@@ -55,7 +79,8 @@ const AversageScoreCard = () => {
               color: "#999",
             }}
           >
-            24 of 80 students passed!
+            {students?.filter((std) => std.scoreInPercentage >= 40)?.length} of{" "}
+            {students.length} students passed!
           </Text>
         </View>
       </View>
@@ -65,4 +90,6 @@ const AversageScoreCard = () => {
 
 export default AversageScoreCard;
 
-AversageScoreCard.propTypes = {};
+AversageScoreCard.propTypes = {
+  students: PropTypes.array,
+};
