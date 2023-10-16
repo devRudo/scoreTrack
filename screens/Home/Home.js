@@ -13,14 +13,16 @@ import { CircularProgress } from "../../components/CircularProgress";
 import { router } from "expo-router";
 import { studentsData } from "../../data";
 import { CardBase } from "../../components/CardBase";
+import { useDispatch, useSelector } from "react-redux";
+import { setStudents } from "../../redux/features/studentsSlice";
 
-const StudentCard = memo(function StudentCard({ item }) {
+const StudentCard = memo(function StudentCard({ student }) {
   return (
     <TouchableOpacity
       onPress={() =>
         router.push({
           pathname: "/scorecard",
-          params: { id: item.id },
+          params: { id: student.id },
         })
       }
     >
@@ -44,7 +46,7 @@ const StudentCard = memo(function StudentCard({ item }) {
           <View
             style={{
               backgroundColor:
-                item.section === "science" ? "#fa661b" : "#fbb03b",
+                student.section === "science" ? "#fa661b" : "#fbb03b",
               borderRadius: 50,
               width: 70,
               height: 70,
@@ -53,7 +55,7 @@ const StudentCard = memo(function StudentCard({ item }) {
             }}
           >
             <Text style={{ fontSize: 30, color: "#fff", fontWeight: 400 }}>
-              {item.firstName.split("")[0]}
+              {student.firstName.split("")[0]}
             </Text>
           </View>
           <View
@@ -69,7 +71,7 @@ const StudentCard = memo(function StudentCard({ item }) {
                 flexWrap: "wrap",
               }}
             >
-              {`${item?.firstName} ${item?.lastName}`}
+              {`${student?.firstName} ${student?.lastName}`}
             </Text>
             <Text
               style={{
@@ -78,7 +80,9 @@ const StudentCard = memo(function StudentCard({ item }) {
                 color: "#999",
               }}
             >
-              {`${item?.section?.split("")?.[0].toUpperCase()}${item?.section
+              {`${student?.section
+                ?.split("")?.[0]
+                .toUpperCase()}${student?.section
                 ?.split("")
                 ?.slice(1)
                 ?.join("")}`}
@@ -86,7 +90,7 @@ const StudentCard = memo(function StudentCard({ item }) {
           </View>
         </View>
         <CircularProgress
-          value={item?.scoreInPercentage}
+          value={student?.scoreInPercentage}
           size={60}
           width={8}
           showWithPercentSign={false}
@@ -102,67 +106,33 @@ const Home = () => {
   const [salutation, setSalutation] = useState("");
   const flatlistRef = useRef(null);
   const [showMoveToTop, setShowMoveToTop] = useState(false);
-
-  const [students, setStudents] = useState([]);
+  const dispatch = useDispatch();
+  const { students } = useSelector((state) => state.students);
 
   const handleScroll = (e) => {
-    // if (e?.nativeEvent?.contentOffset?.y > 500) {
-    //   setShowMoveToTop(true);
-    // } else {
-    //   setShowMoveToTop(false);
-    // }
+    if (e?.nativeEvent?.contentOffset?.y > 500) {
+      setShowMoveToTop(true);
+    } else {
+      setShowMoveToTop(false);
+    }
   };
 
   useEffect(() => {
-    setStudents(
-      studentsData?.data?.sort((a, b) => {
-        let valueA;
-        let valueB;
-        if (sortBy === "name") {
-          valueA = a.firstName.toUpperCase();
-          valueB = b.firstName.toUpperCase();
-        } else if (sortBy === "ascPercentage") {
-          valueA = a.scoreInPercentage;
-          valueB = b.scoreInPercentage;
-        }
-        if (valueA < valueB) {
-          return -1;
-        }
-        if (valueA > valueB) {
-          return 1;
-        } else if (sortBy === "dscPercentage") {
-          valueA = a.scoreInPercentage;
-          valueB = b.scoreInPercentage;
-        }
-        if (valueA > valueB) {
-          return -1;
-        }
-        if (valueA < valueB) {
-          return 1;
-        }
-        return 0;
-      }) || []
+    dispatch(
+      setStudents({
+        data: studentsData?.data,
+        sortBy,
+      })
     );
   }, [sortBy]);
 
   useEffect(() => {
-    setFetchingStudentsList(true);
-    setTimeout(() => {
-      setStudents(
-        studentsData?.data?.sort((a, b) => {
-          const nameA = a.firstName.toUpperCase();
-          const nameB = b.firstName.toUpperCase();
-          if (nameA < nameB) {
-            return -1;
-          }
-          if (nameA > nameB) {
-            return 1;
-          }
-          return 0;
-        }) || []
-      );
-      setFetchingStudentsList(false);
-    }, 2000);
+    dispatch(
+      setStudents({
+        data: studentsData?.data,
+        sortBy,
+      })
+    );
   }, []);
 
   useEffect(() => {
@@ -207,7 +177,7 @@ const Home = () => {
             >
               {salutation}!
             </Text>
-            <AverageScoreCard students={students}></AverageScoreCard>
+            <AverageScoreCard></AverageScoreCard>
             <View
               style={{
                 flexDirection: "row",
@@ -254,7 +224,7 @@ const Home = () => {
             ref={flatlistRef}
             onScroll={(e) => handleScroll(e)}
             data={students}
-            renderItem={({ item }) => <StudentCard item={item} />}
+            renderItem={({ item }) => <StudentCard student={item} />}
             keyExtractor={(item) => item.id}
           />
         </>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // import { Text, View } from "react-native";
 import PropTypes from "prop-types";
 import { CardBase } from "../CardBase";
@@ -7,11 +7,26 @@ import { Text, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { studentsData } from "../../data";
 import Slider from "@react-native-community/slider";
+import { useDispatch, useSelector } from "react-redux";
+import { updateStudents } from "../../redux/features/studentsSlice";
 
 const ScoreCard = ({ studentId }) => {
+  const { students } = useSelector((state) => state.students);
+  const dispatch = useDispatch();
+
   const [score, setScore] = useState(
-    studentsData?.data?.find((std) => std?.id === studentId)?.scoreInPercentage
+    students?.find((std) => std?.id === studentId)?.scoreInPercentage
   );
+
+  useEffect(() => {
+    dispatch(
+      updateStudents({
+        studentId,
+        key: "scoreInPercentage",
+        value: score,
+      })
+    );
+  }, [score]);
 
   return (
     <CardBase>

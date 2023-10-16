@@ -4,8 +4,11 @@ import PropTypes from "prop-types";
 import { CardBase } from "../CardBase";
 import { CircularProgress } from "../CircularProgress";
 import { Text, View } from "react-native";
+import { useSelector } from "react-redux";
 
-const AversageScoreCard = ({ students }) => {
+const AversageScoreCard = () => {
+  const { students } = useSelector((state) => state.students);
+
   return (
     <CardBase>
       <View
@@ -90,6 +93,4 @@ const AversageScoreCard = ({ students }) => {
 
 export default AversageScoreCard;
 
-AversageScoreCard.propTypes = {
-  students: PropTypes.array,
-};
+AversageScoreCard.propTypes = {};
